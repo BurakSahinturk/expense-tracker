@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Data files
+expenses.csv
+test*.csv
+tasks.json
+test*.json
+
+# OS
+.DS_Store
+Thumbs.db
