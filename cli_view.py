@@ -10,6 +10,10 @@ def show_expense_deleted(expense_id: int) -> str:
     """Return success message for deleted expense"""
     return f"Expense [{expense_id}] is successfully deleted"
 
+def show_expense_delete_cancelled() -> str:
+    """Return cancellation message for quitting during deleting"""
+    return f"Deletion cancelled"
+
 def show_expense_list(expenses: list[Expense]) -> str:
     """Format list of expenses as ASCII table"""
     if not expenses:

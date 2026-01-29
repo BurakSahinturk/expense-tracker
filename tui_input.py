@@ -4,8 +4,9 @@ import inquirer
 from inquirer import errors
 from expense import Expense
 from expense_manager import categories
-from main import ACTIONS
 import cli_view
+
+ACTIONS = ["List Expenses", "Add an Expense", "Delete an Expense", "Show Summary", "Exit"]
 
 def validate_amount(answers, current):
     """Validate amount is a positive number"""
