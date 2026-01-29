@@ -3,7 +3,7 @@ import csv
 import os
 from exceptions import CorruptedDataError
 
-def save_expenses(filepath: str, expenses: list[Expense], next_id: str) -> None:
+def save_expenses(filepath: str, expenses: list[Expense], next_id: int) -> None:
     """Save list of expenses to CSV file"""
     try:
         with open(filepath, "w", newline="") as file:
