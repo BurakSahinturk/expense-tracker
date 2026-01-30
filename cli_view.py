@@ -2,17 +2,29 @@
 
 from expense import Expense
 
+def show_welcome() -> str:
+    """Returns a welcome message"""
+    return "Welcome!\n"
+
+def show_goodbye() -> str:
+    """Returns a farewell message"""
+    return "Goodbye!\n"
+
 def show_expense_added(expense_id: int) -> str:
     """Return success message for added expense"""
-    return f"Expense [{expense_id}] is successfully added"
+    return f"Expense [{expense_id}] is successfully added\n"
+
+def show_expense_corrected(expense_id: int) -> str:
+    """Return success message for corrected expense"""
+    return f"Expense [{expense_id}] is successfully updated\n"
 
 def show_expense_deleted(expense_id: int) -> str:
     """Return success message for deleted expense"""
-    return f"Expense [{expense_id}] is successfully deleted"
+    return f"Expense [{expense_id}] is successfully deleted\n"
 
 def show_expense_delete_cancelled() -> str:
     """Return cancellation message for quitting during deleting"""
-    return f"Deletion cancelled"
+    return f"Deletion cancelled\n"
 
 def show_expense_list(expenses: list[Expense]) -> str:
     """Format list of expenses as ASCII table"""
@@ -40,7 +52,7 @@ def show_expense_list(expenses: list[Expense]) -> str:
     header_row = f"{'ID':<{mw_id}} | {'Amount':^{mw_amount}} | {'Category':^{max_width_category}} | {'Description':^{max_width_description}} | {'Date':^{mw_date}}"
     separator_row = f"{'-'*mw_id}-|-{'-' * mw_amount}-|-{'-' * max_width_category}-|-{'-' * max_width_description}-|-{'-'*mw_date}"
     expenses_table_data = "\n".join([format_table_row(expense) for expense in expenses])
-    return header_row + "\n" + separator_row + "\n" + expenses_table_data
+    return header_row + "\n" + separator_row + "\n" + expenses_table_data + "\n"
 
 def show_total(total: float) -> str:
     """Format total spending message"""
@@ -63,15 +75,15 @@ def show_category_summary(category_totals: dict) -> str:
     for category in category_totals:
         total_sum += category_totals[category]
         summary += f"{category}: ${category_totals[category]:.2f}\n"
-    return summary + f"---\nTotal: ${total_sum:.2f}"
+    return summary + f"---\nTotal: ${total_sum:.2f}" + "\n"
 
 def show_error(message: str) -> str:
     """Format error message"""
-    return f"❌ Error: {message}"
+    return f"❌ Error: {message}\n"
 
 def show_empty_list() -> str:
     """Message for empty expense list"""
-    return "📭 No expenses yet!"
+    return "📭 No expenses yet!\n"
 
 def format_expense_row(expense: Expense) -> str:
     return f"[{expense.id}] ${expense.amount:.2f} - {expense.category} - {expense.description}"

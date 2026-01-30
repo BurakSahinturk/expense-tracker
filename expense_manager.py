@@ -48,6 +48,10 @@ class ExpenseManager:
         expense = self._get_existing_expense(expense_id)
         expense.correct_date(new_date)
 
+    def correct_expense_description(self, expense_id: int, new_description: str) -> None:
+        expense = self._get_existing_expense(expense_id)
+        expense.correct_description(new_description)
+
     def recategorize_expense(self, expense_id: int, new_category: str) -> None:
         expense = self._get_existing_expense(expense_id)
         if new_category not in self._categories:

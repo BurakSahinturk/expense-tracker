@@ -22,6 +22,8 @@ class InvalidDateError(Exception):
 
 class ExpenseNotFoundError(Exception):
     """Raised when there are no expense found with the given ID"""
+    pass
 
 class CorruptedDataError(Exception):
     """Raised when trying to load a corrupted file"""
+    pass
