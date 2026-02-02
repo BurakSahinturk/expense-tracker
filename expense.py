@@ -14,11 +14,13 @@ class Expense:
             ) -> None:
         
         #Validation
+        if not isinstance(expense_id, int):
+            raise InvalidExpenseIdError(f"Expense ID must be an integer. Got {type(expense_id).__name__}: {expense_id}")
         if expense_id < 1:
             raise InvalidExpenseIdError(f"Expense ID must be a positive integer. Got {expense_id} instead")
-        if not category:
+        if not category.strip():
             raise InvalidCategoryError("Category must be a non-empty string")
-        if not description:
+        if not description.strip():
             raise InvalidExpenseDescriptionError("Description must be a non-empty string")
         if date is None:
             date = Date.today()
@@ -31,6 +33,8 @@ class Expense:
         self._date = date
 
     def _normalize_amount(self, amount: float|int) -> float:
+        if amount is None:
+            raise InvalidExpenseDataError(f"Amount is required")
         if not isinstance(amount, float):
             try:
                 amount = float(amount)

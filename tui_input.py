@@ -19,7 +19,7 @@ CORRECTION_ACTIONS = [
     ("Description", "description"),
     ("Category", "category"),
     ("Date", "date"),
-    ("← Cancel", None),
+    ("← Back", None),
 ]
 
 def validate_amount(answers, current):
@@ -57,8 +57,8 @@ def validate_year(answer, current):
         raise errors.ValidationError("", reason="Year is needed")
     try:
         year = int(current)
-        if year < 2020 or year > 2026:
-            raise errors.ValidationError("", reason="Year must be a valid year")
+        if year > Date.today().year:
+            raise errors.ValidationError("", reason="Isn't it a bit early for that?")
     except ValueError:
         raise errors.ValidationError("", reason="Year must be a valid number")
 
@@ -85,15 +85,17 @@ def get_expense_details() -> dict | None:
         inquirer.List("category", message="Please select a category", choices=categories),
         inquirer.Text("description", message="Please enter the description for the expense", validate=validate_description)
     ]
-    return inquirer.prompt(questions)
+    answers = inquirer.prompt(questions)
+    answers["amount"] = float(answers["amount"]) #type: ignore
+    return answers
 
 def get_amount() -> float | None:
     questions = [inquirer.Text("amount", message="Please enter the corrected amount", validate=validate_amount)]
-    return inquirer.prompt(questions)["amount"] #type: ignore
+    return float(inquirer.prompt(questions)["amount"]) #type: ignore
 
 def get_description() -> str | None:
     questions = [inquirer.Text("description", message="Please enter the correct description", validate=validate_description)]
-    return inquirer.prompt(questions)["description"] #type: ignore
+    return float(inquirer.prompt(questions)["description"]) #type: ignore
 
 def get_category() -> str | None:
     questions = [inquirer.List("category", message="Please select the correct category", choices=categories)]
@@ -107,14 +109,15 @@ def get_date() -> Date | None:
         inquirer.List("month", message="Which month?", default=months[today.month - 1], choices=months),
         inquirer.Text("year", message="Which year?", default=today.year, validate=validate_year)
         ]
-    answers = inquirer.prompt(questions)
-    day = int(answers["day"]) #type: ignore
-    month = int(months.index(answers["month"])) + 1 #type: ignore
-    year = int(answers["year"]) #type: ignore
-    try:
-        return Date(year, month, day)
-    except ValueError:
-        raise errors.ValidationError("", reason="Invalid calendar date")
+    while True:
+        answers = inquirer.prompt(questions)
+        try:
+            day = int(answers["day"]) #type: ignore
+            month = int(months.index(answers["month"])) + 1 #type: ignore
+            year = int(answers["year"]) #type: ignore
+            return Date(year, month, day)
+        except ValueError:
+            raise errors.ValidationError("", reason="Invalid calendar date")
 
 def pick_expense(expenses: list[Expense], action: str) -> int | None:
     """Let user select an expense to process

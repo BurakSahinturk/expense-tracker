@@ -1,32 +1,39 @@
 """Main application controller"""
 
+from expense import Expense
 from expense_manager import ExpenseManager
 from expense_service import ExpenseService
-from storage import load_expenses, save_expenses
+from storage import load_expenses
 import tui_input
 import cli_view
+from exceptions import ExpenseNotFoundError, InvalidExpenseIdError, InvalidExpenseDataError
 
 STORAGE_PATH = "expenses.csv"
 
-def correct_amount(service: ExpenseService, expense_id: int) -> None:
+def correct_amount(service: ExpenseService, expense_id: int, expense: Expense) -> None:
+    print(cli_view.show_current_amount(expense.amount))
     new_amount = tui_input.get_amount()
     if new_amount is not None:
         service.correct_expense_amount(expense_id, new_amount)
 
-def correct_description(service: ExpenseService, expense_id: int) -> None:
+def correct_description(service: ExpenseService, expense_id: int, expense: Expense) -> None:
+    print(cli_view.show_current_description(expense.description))
     new_description = tui_input.get_description()
     if new_description is not None:
         service.correct_expense_description(expense_id, new_description)
 
-def correct_category(service: ExpenseService, expense_id: int) -> None:
+def correct_category(service: ExpenseService, expense_id: int, expense: Expense) -> None:
+    print(cli_view.show_current_category(expense.category))
     new_category = tui_input.get_category()
     if new_category is not None:
         service.recategorize_expense(expense_id, new_category)
 
-def correct_date(service: ExpenseService, expense_id: int) -> None:
+def correct_date(service: ExpenseService, expense_id: int, expense: Expense) -> None:
+    print(cli_view.show_current_date(expense.date))
     new_date = tui_input.get_date()
     if new_date is not None:
         service.correct_expense_date(expense_id, new_date)
+        
 CORRECTION_HANDLERS = {
     "amount": correct_amount,
     "description": correct_description,
@@ -73,27 +80,29 @@ def main():
                     try:
                         service.delete_expense(expense_id)
                         print(cli_view.show_expense_deleted(expense_id))
-                    except Exception as e:
+                    except (ExpenseNotFoundError, InvalidExpenseIdError, InvalidExpenseDataError, ) as e:
                         print(cli_view.show_error(str(e)))
                 else:
-                    cli_view.show_expense_delete_cancelled()
+                    print(cli_view.show_expense_delete_cancelled())
         
         # Handle "Correct an Expense"
         elif action == "Correct an Expense":
             expense_id = tui_input.pick_expense(service.list_expenses(), "correct")
             if expense_id is None:
                 continue
-            attribute = tui_input.get_attribute_to_correct()
-            if attribute is None:
-                continue
-            handler = CORRECTION_HANDLERS.get(attribute)
-            if handler is None:
-                continue
-            try:
-                handler(service, expense_id)
-                print(cli_view.show_expense_corrected(expense_id))
-            except Exception as e:
-                print(cli_view.show_error(str(e)))
+            expense = service.get_expense(expense_id)
+            while True:
+                attribute = tui_input.get_attribute_to_correct()
+                if attribute is None:
+                    break
+                handler = CORRECTION_HANDLERS.get(attribute)
+                if handler is None:
+                    continue
+                try:
+                    handler(service, expense_id, expense)
+                    print(cli_view.show_expense_corrected(expense_id))
+                except (ExpenseNotFoundError, InvalidExpenseIdError, InvalidExpenseDataError) as e:
+                    print(cli_view.show_error(str(e)))
 
         # Handle "Show Summary"
         elif action == "Show Summary":

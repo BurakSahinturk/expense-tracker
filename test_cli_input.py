@@ -20,14 +20,14 @@ try:
 except:
     print("✅ Negative amount rejected")
 
-# Test 2: Get expense to delete
+# Test 2: Pick Expense
 print("\n=== Test get_expense_to_delete ===")
 expenses = [
     Expense(1, 15.50, "Groceries", "Pizza", date.today()),
     Expense(2, 45.00, "Transportation", "Uber", date.today())
 ]
 
-result = tui_input.get_expense_to_delete(expenses)
+result = tui_input.pick_expense(expenses, "test")
 print(f"Selected ID: {result}")
 
 # Test 3: Confirm action

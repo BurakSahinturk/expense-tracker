@@ -28,10 +28,12 @@ class ExpenseManager:
         return expense_id
 
     def _get_existing_expense(self, expense_id: int) -> Expense:
+        if not isinstance(expense_id, int):
+            raise InvalidExpenseIdError(f"Expense ID must be an integer. Got {type(expense_id).__name__}")
         try:
             return self._ledger[expense_id]
         except KeyError:
-            raise ExpenseNotFoundError(f"Expense with id: {expense_id} not found")
+            raise ExpenseNotFoundError(f"Expense #{expense_id} not found")
         
     def delete_expense(self, expense_id: int) -> None:
         self._get_existing_expense(expense_id)
@@ -63,3 +65,7 @@ class ExpenseManager:
         for expense in self.export_expense_list():
                 category_totals[expense.category] += expense.amount
         return category_totals
+    
+    def get_expense(self, expense_id: int) -> Expense:
+        expense = self._get_existing_expense(expense_id)
+        return expense

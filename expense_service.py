@@ -53,3 +53,6 @@ class ExpenseService:
     
     def get_category_summary(self):
         return self._manager.get_category_summary()
+    
+    def get_expense(self, expense_id: int) -> Expense:
+        return self._manager.get_expense(expense_id)

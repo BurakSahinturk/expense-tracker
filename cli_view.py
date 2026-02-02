@@ -1,6 +1,7 @@
 """Display formatting functions"""
 
 from expense import Expense
+from datetime import date as Date
 
 def show_welcome() -> str:
     """Returns a welcome message"""
@@ -9,6 +10,34 @@ def show_welcome() -> str:
 def show_goodbye() -> str:
     """Returns a farewell message"""
     return "Goodbye!\n"
+
+def show_current_amount(amount: float) -> str:
+    """Return current amount"""
+    return f"Current amount is: ${amount:.2f}"
+
+def show_current_description(description: str) -> str:
+    """Return current description"""
+    return f"Current description is: {description}"
+
+def show_current_category(category: str) -> str:
+    """Return current category"""
+    return f"Current category is: {category}"
+
+def show_current_date(date: Date) -> str:
+    """Returns current date"""
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    day = date.day
+    if day == 1 or day == 21 or day == 31:
+        adder = "st"
+    elif day == 2 or day == 22:
+        adder = "nd"
+    elif day == 3 or day == 23:
+        adder = "rd"
+    else:
+        adder = "th"
+    month = months[date.month - 1]
+    year = date.year
+    return f"Current date is: {month} {day}{adder} {year}"
 
 def show_expense_added(expense_id: int) -> str:
     """Return success message for added expense"""
