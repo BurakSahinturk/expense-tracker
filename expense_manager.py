@@ -1,31 +1,26 @@
 """Domain logic"""
-from expense import Expense
+from expense import Expense, ExpenseDraft
 from datetime import date as Date
 from exceptions import InvalidCategoryError, InvalidExpenseIdError, ExpenseNotFoundError
 
 categories = ["Groceries", "Transportation", "Utilities", "Personal Care", "Savings", "Entertainment"]
 
 class ExpenseManager:
-    def __init__(self, expense_list: list[Expense] | None, next_id: int) -> None:
+    def __init__(self, expense_list: list[Expense] | None) -> None:
         if expense_list is None:
             self._ledger = {}
         else:
             self._ledger = {expense.id: expense for expense in expense_list}
-        self._next_id = next_id
         self._categories = categories
     
-    @property
-    def next_id(self):
-        return self._next_id
-    
-    def create_expense(self, amount: float, category: str, description: str, date: Date | None) -> int:
+    def create_draft(self, amount: float, category: str, description: str, date: Date | None) -> ExpenseDraft:
         if category not in self._categories:
             raise InvalidCategoryError(f"Given category: {category} is not in predefined categories")
-        expense_id = self._next_id
-        new_expense = Expense(expense_id, amount, category, description, date)
-        self._ledger[expense_id] = new_expense
-        self._next_id += 1
-        return expense_id
+        return ExpenseDraft(amount, category, description, date)
+
+    def attach_expense(self, new_expense: Expense) -> int:
+        self._ledger[new_expense.id] = new_expense
+        return new_expense.id
 
     def _get_existing_expense(self, expense_id: int) -> Expense:
         if not isinstance(expense_id, int):

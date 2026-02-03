@@ -3,12 +3,12 @@
 from expense import Expense
 from expense_manager import ExpenseManager
 from expense_service import ExpenseService
-from storage import load_expenses
+from storage import load_expenses, create_table
 import tui_input
 import cli_view
 from exceptions import ExpenseNotFoundError, InvalidExpenseIdError, InvalidExpenseDataError
 
-STORAGE_PATH = "expenses.csv"
+STORAGE_PATH = "expenses.db"
 
 def correct_amount(service: ExpenseService, expense_id: int, expense: Expense) -> None:
     print(cli_view.show_current_amount(expense.amount))
@@ -42,8 +42,9 @@ CORRECTION_HANDLERS = {
 }
 
 def main():
-    (expense_list, next_id) = load_expenses(STORAGE_PATH)
-    manager = ExpenseManager(expense_list, next_id)
+    create_table(STORAGE_PATH)
+    (expense_list) = load_expenses(STORAGE_PATH)
+    manager = ExpenseManager(expense_list)
     service = ExpenseService(manager, STORAGE_PATH)
 
     print(cli_view.show_welcome()) 

@@ -1,9 +1,46 @@
 """Expense entity representing an expense."""
 
 from datetime import date as Date
-from exceptions import InvalidExpenseIdError, InvalidExpenseDataError, InvalidExpenseDescriptionError, InvalidCategoryError, InvalidDateError
+from exceptions import (
+    InvalidExpenseIdError,
+    InvalidExpenseDataError,
+    InvalidExpenseDescriptionError,
+    InvalidCategoryError,
+    InvalidDateError
+)
+
+def normalize_amount(amount: float|int) -> float:
+    """Normalization of amount values, used in both classes"""
+    if amount is None:
+        raise InvalidExpenseDataError(f"Amount is required")
+    if not isinstance(amount, float):
+        try:
+            amount = float(amount)
+        except (ValueError, TypeError):
+            raise InvalidExpenseDataError(f"Amount must be a number. Got {type(amount).__name__}: {amount} instead")
+    if amount <= 0:
+        raise InvalidExpenseDataError(f"Amount must be positive. Got {amount} instead")
+    return amount
+
+class ExpenseDraft:
+    """Draft Expense for pre-persistence to be transformed to Expense after persistence and acquiring ID"""
+    def __init__(self,
+                 amount: float|int,
+                 category: str,
+                 description: str,
+                 date: Date | None = None
+                 ) -> None:
+        self.amount = normalize_amount(amount)
+        if not category.strip():
+            raise InvalidCategoryError("Category must be a non-empty string")
+        if not description.strip():
+            raise InvalidExpenseDescriptionError("Description must be a non-empty string")
+        self.category = category.strip()
+        self.description = description.strip()
+        self.date = date or Date.today()
 
 class Expense:
+    """Main entity"""
     def __init__(
             self,
             expense_id: int,
@@ -22,27 +59,13 @@ class Expense:
             raise InvalidCategoryError("Category must be a non-empty string")
         if not description.strip():
             raise InvalidExpenseDescriptionError("Description must be a non-empty string")
-        if date is None:
-            date = Date.today()
-        validated_amount = self._normalize_amount(amount)
+        validated_amount = normalize_amount(amount)
         
         self._id = expense_id
         self._amount = validated_amount
-        self._category = category
-        self._description = description
-        self._date = date
-
-    def _normalize_amount(self, amount: float|int) -> float:
-        if amount is None:
-            raise InvalidExpenseDataError(f"Amount is required")
-        if not isinstance(amount, float):
-            try:
-                amount = float(amount)
-            except (ValueError, TypeError):
-                raise InvalidExpenseDataError(f"Amount must be a number. Got {type(amount).__name__}: {amount} instead")
-        if amount <= 0:
-            raise InvalidExpenseDataError(f"Amount must be positive. Got {amount} instead")
-        return amount
+        self._category = category.strip()
+        self._description = description.strip()
+        self._date = date or Date.today()
 
     @property
     def id(self) -> int:
@@ -53,7 +76,7 @@ class Expense:
         return self._amount
     
     def correct_amount(self, new_amount: float) -> None:
-        validated_amount = self._normalize_amount(new_amount)
+        validated_amount = normalize_amount(new_amount)
         if validated_amount == self.amount:
             return
         self._amount = validated_amount
