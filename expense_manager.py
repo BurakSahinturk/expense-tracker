@@ -49,10 +49,14 @@ class ExpenseManager:
         expense = self._get_existing_expense(expense_id)
         expense.correct_description(new_description)
 
+    def validate_category(self, new_category: str) -> None:
+        if new_category.strip() not in self._categories:
+            raise InvalidCategoryError(f"Given category: {new_category} is not in predefined categories")
+
     def recategorize_expense(self, expense_id: int, new_category: str) -> None:
         expense = self._get_existing_expense(expense_id)
-        if new_category not in self._categories:
-            raise InvalidCategoryError(f"Given category: {new_category} is not in predefined categories")
+        new_category = new_category.strip()
+        self.validate_category(new_category)
         expense.recategorize(new_category)
     
     def get_category_summary(self) -> dict:

@@ -7,8 +7,7 @@ from storage import load_expenses, create_table
 import tui_input
 import cli_view
 from exceptions import ExpenseNotFoundError, InvalidExpenseIdError, InvalidExpenseDataError
-
-STORAGE_PATH = "expenses.db"
+from config import STORAGE_PATH
 
 def correct_amount(service: ExpenseService, expense_id: int, expense: Expense) -> None:
     print(cli_view.show_current_amount(expense.amount))

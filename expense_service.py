@@ -1,9 +1,10 @@
 """Service Layer"""
 
-from expense import Expense, ExpenseDraft
+from expense import Expense, ExpenseDraft, normalize_amount, validate_date, validate_description
 from expense_manager import ExpenseManager
 from datetime import date as Date
 import storage
+from api.api import ExpensePatchDTO
 
 class ExpenseService:
     def __init__(self, manager: ExpenseManager, storage_path: str) -> None:
@@ -55,3 +56,24 @@ class ExpenseService:
     
     def get_expense(self, expense_id: int) -> Expense:
         return self._manager.get_expense(expense_id)
+    
+    def apply_patch(self, expense_id: int, dto:ExpensePatchDTO) -> None:
+        expense = self._manager.get_expense(expense_id)
+
+        if dto.amount is not None:
+            normalize_amount(dto.amount)
+        if dto.category is not None:
+            self._manager.validate_category(dto.category)
+        if dto.description is not None:
+            validate_description(dto.description)
+        if dto.date is not None:
+            validate_date(dto.date)
+
+        if dto.amount is not None:
+            self.correct_expense_amount(expense_id, dto.amount)
+        if dto.category is not None:
+            self.recategorize_expense(expense_id, dto.category)
+        if dto.description is not None:
+            self.correct_expense_description(expense_id, dto.description)
+        if dto.date is not None:
+            self.correct_expense_date(expense_id, dto.date)

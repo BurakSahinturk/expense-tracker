@@ -22,6 +22,15 @@ def normalize_amount(amount: float|int) -> float:
         raise InvalidExpenseDataError(f"Amount must be positive. Got {amount} instead")
     return amount
 
+def validate_description(description: str) -> None:
+    if not description.strip():
+        raise InvalidExpenseDescriptionError("Description must be a non-empty string")
+
+def validate_date(date: Date) -> None:
+    if not isinstance(date, Date):
+        raise InvalidDateError(f"Date must be a datetime Date. Got {type(date).__name__}: {date} instead")
+
+
 class ExpenseDraft:
     """Draft Expense for pre-persistence to be transformed to Expense after persistence and acquiring ID"""
     def __init__(self,
@@ -33,8 +42,7 @@ class ExpenseDraft:
         self.amount = normalize_amount(amount)
         if not category.strip():
             raise InvalidCategoryError("Category must be a non-empty string")
-        if not description.strip():
-            raise InvalidExpenseDescriptionError("Description must be a non-empty string")
+        validate_description(description)
         self.category = category.strip()
         self.description = description.strip()
         self.date = date or Date.today()
@@ -57,8 +65,7 @@ class Expense:
             raise InvalidExpenseIdError(f"Expense ID must be a positive integer. Got {expense_id} instead")
         if not category.strip():
             raise InvalidCategoryError("Category must be a non-empty string")
-        if not description.strip():
-            raise InvalidExpenseDescriptionError("Description must be a non-empty string")
+        validate_description(description)
         validated_amount = normalize_amount(amount)
         
         self._id = expense_id
@@ -97,8 +104,8 @@ class Expense:
         return self._description
     
     def correct_description(self, new_description: str) -> None:
-        if not new_description:
-            raise InvalidExpenseDescriptionError("Description must be a non-empty string")
+        new_description = new_description.strip()
+        validate_description(new_description)
         if new_description == self.description:
             return
         self._description = new_description
@@ -108,8 +115,7 @@ class Expense:
         return self._date
     
     def correct_date(self, new_date: Date) -> None:
-        if not isinstance(new_date, Date):
-            raise InvalidDateError(f"Date must be a datetime Date. Got {type(new_date).__name__}: {new_date} instead")
+        validate_date(new_date)
         if new_date == self.date:
             return
         self._date = new_date
@@ -134,3 +140,13 @@ class Expense:
         date = Date.fromisoformat(row[4])
 
         return cls(expense_id, amount, category, description, date)
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "id": self.id,
+            "amount": self.amount,
+            "category": self.category,
+            "description": self.description,
+            "date": self.date.isoformat()
+        }
